@@ -81,6 +81,28 @@
             box-shadow: 0 0 0 2px #000;
         }
 
+        .game-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: #2c3e50;
+            z-index: 5;
+        }
+
+        .game-area::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: #2c3e50;
+            z-index: 5;
+        }
+
         .game-area:focus {
             border-color: #000;
         }
@@ -491,16 +513,32 @@
 
         // Çarpışma kontrolü
         function checkCollisions() {
-            // Zemin ve tavan kontrolü
-            if (birdY <= 0 || birdY >= GAME_HEIGHT - 30) {
+            // Zemin ve tavan kontrolü - zemin ve tavan çizgileri ile
+            if (birdY <= 20 || birdY >= GAME_HEIGHT - 40) {
                 gameOverFunction();
                 return;
             }
             
-            // Boru çarpışma kontrolü
+            // Boru çarpışma kontrolü - daha toleranslı
             pipes.forEach(pipe => {
-                if (birdX + 30 > pipe.x && birdX < pipe.x + PIPE_WIDTH) {
-                    if (birdY < pipe.topHeight || birdY + 30 > pipe.bottomY) {
+                // Kuş ve boru arasında çarpışma kontrolü
+                const birdLeft = birdX + 5;
+                const birdRight = birdX + 25;
+                const birdTop = birdY + 5;
+                const birdBottom = birdY + 19;
+                
+                const pipeLeft = pipe.x + 5;
+                const pipeRight = pipe.x + PIPE_WIDTH - 5;
+                
+                // Yatay çakışma kontrolü
+                if (birdRight > pipeLeft && birdLeft < pipeRight) {
+                    // Üst boru ile çarpışma
+                    if (birdTop < pipe.topHeight - 5) {
+                        gameOverFunction();
+                        return;
+                    }
+                    // Alt boru ile çarpışma
+                    if (birdBottom > pipe.bottomY + 5) {
                         gameOverFunction();
                         return;
                     }
