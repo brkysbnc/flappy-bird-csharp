@@ -120,7 +120,7 @@
 
         .pipe {
             position: absolute;
-            width: 52px;
+            width: 80px;
             background-image: url('images/pipe-green.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -302,7 +302,7 @@
         // Oyun sabitleri - Orijinal Flappy Bird
         const GRAVITY = 0.4;
         const JUMP_FORCE = -6.5;
-        const PIPE_WIDTH = 52;
+        const PIPE_WIDTH = 80; // Daha geniş borular
         const PIPE_GAP = 120;
         const PIPE_SPEED = 1.5;
         const GAME_WIDTH = 400;
@@ -463,8 +463,8 @@
                 const birdTop = birdY + 5;
                 const birdBottom = birdY + 19;
                 
-                const pipeLeft = pipe.x + 5;
-                const pipeRight = pipe.x + PIPE_WIDTH - 5;
+                const pipeLeft = pipe.x + 10;
+                const pipeRight = pipe.x + PIPE_WIDTH - 10;
                 
                 // Yatay çakışma kontrolü
                 if (birdRight > pipeLeft && birdLeft < pipeRight) {
