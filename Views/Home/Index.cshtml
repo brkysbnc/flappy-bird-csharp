@@ -1,0 +1,273 @@
+﻿@{
+    ViewData["Title"] = "Flappy Bird - C# Oyunu";
+}
+
+<div class="game-container">
+    <div class="game-header">
+        <h1>🐦 Flappy Bird</h1>
+        <div class="score">Skor: <span id="score">0</span></div>
+        <div class="high-score">En Yüksek Skor: <span id="highScore">0</span></div>
+    </div>
+    
+    <div class="game-area" id="gameArea" tabindex="0">
+        <div class="bird" id="bird">
+            <div class="bird-body"></div>
+            <div class="bird-wing"></div>
+            <div class="bird-eye"></div>
+            <div class="bird-beak"></div>
+        </div>
+        
+        <div id="pipes"></div>
+        
+        <div class="start-screen" id="startScreen">
+            <h2>Flappy Bird'e Hoş Geldin!</h2>
+            <p>Space tuşuna basarak oyunu başlat</p>
+            <p>Kuşu yukarı çıkarmak için Space tuşuna bas</p>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen" style="display: none;">
+            <h2>Oyun Bitti!</h2>
+            <p>Skorun: <span id="finalScore">0</span></p>
+            <p>Space tuşuna basarak tekrar oyna</p>
+        </div>
+    </div>
+    
+    <div class="game-controls">
+        <button class="jump-btn" onclick="jump()">Zıpla (Space)</button>
+        <button class="restart-btn" onclick="restartGame()">Yeniden Başla</button>
+    </div>
+</div>
+
+<script>
+// Oyun değişkenleri
+let gameStarted = false;
+let gameOver = false;
+let score = 0;
+let highScore = 0;
+
+// Kuş özellikleri
+let birdY = 200;
+let birdVelocity = 0;
+let birdX = 100;
+let birdRotation = 0;
+
+// Oyun sabitleri
+const GRAVITY = 0.5;
+const JUMP_FORCE = -8;
+const PIPE_WIDTH = 60;
+const PIPE_GAP = 150;
+const PIPE_SPEED = 2;
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 600;
+
+// Boru listesi
+let pipes = [];
+let pipeSpawnTimer = 0;
+const PIPE_SPAWN_INTERVAL = 120;
+
+// Oyun döngüsü
+let gameTimer;
+let frameCount = 0;
+
+// DOM elementleri
+const gameArea = document.getElementById('gameArea');
+const bird = document.getElementById('bird');
+const pipesContainer = document.getElementById('pipes');
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const scoreElement = document.getElementById('score');
+const highScoreElement = document.getElementById('highScore');
+const finalScoreElement = document.getElementById('finalScore');
+
+// Oyun başlatma
+function startGame() {
+    if (!gameStarted) {
+        gameStarted = true;
+        gameOver = false;
+        score = 0;
+        birdY = 200;
+        birdVelocity = 0;
+        pipes = [];
+        pipeSpawnTimer = 0;
+        frameCount = 0;
+        
+        startScreen.style.display = 'none';
+        gameOverScreen.style.display = 'none';
+        
+        // Oyun döngüsünü başlat
+        gameTimer = setInterval(gameLoop, 16); // ~60 FPS
+    }
+}
+
+// Oyun döngüsü
+function gameLoop() {
+    if (!gameStarted || gameOver) return;
+    
+    frameCount++;
+    
+    // Kuş fiziği
+    birdVelocity += GRAVITY;
+    birdY += birdVelocity;
+    
+    // Kuş rotasyonu (hız bazlı)
+    birdRotation = Math.min(90, Math.max(-30, birdVelocity * 3));
+    
+    // Boru spawn etme
+    pipeSpawnTimer++;
+    if (pipeSpawnTimer >= PIPE_SPAWN_INTERVAL) {
+        spawnPipe();
+        pipeSpawnTimer = 0;
+    }
+    
+    // Boruları hareket ettir
+    for (let i = pipes.length - 1; i >= 0; i--) {
+        pipes[i].x -= PIPE_SPEED;
+        
+        // Ekrandan çıkan boruları kaldır
+        if (pipes[i].x + PIPE_WIDTH < 0) {
+            pipes.splice(i, 1);
+            score++; // Boru geçildi, skor artır
+            scoreElement.textContent = score;
+        }
+    }
+    
+    // Çarpışma kontrolü
+    checkCollisions();
+    
+    // Kuş pozisyonunu güncelle
+    bird.style.left = birdX + 'px';
+    bird.style.top = birdY + 'px';
+    bird.style.transform = `rotate(${birdRotation}deg)`;
+    
+    // Boruları güncelle
+    updatePipes();
+}
+
+// Boru spawn etme
+function spawnPipe() {
+    const gapY = Math.random() * (GAME_HEIGHT - PIPE_GAP - 200) + 100;
+    
+    const pipe = {
+        x: GAME_WIDTH,
+        topHeight: gapY,
+        bottomY: gapY + PIPE_GAP,
+        bottomHeight: GAME_HEIGHT - (gapY + PIPE_GAP)
+    };
+    
+    pipes.push(pipe);
+}
+
+// Boruları güncelle
+function updatePipes() {
+    pipesContainer.innerHTML = '';
+    
+    pipes.forEach(pipe => {
+        // Üst boru
+        const topPipe = document.createElement('div');
+        topPipe.className = 'pipe';
+        topPipe.style.left = pipe.x + 'px';
+        topPipe.style.top = '0px';
+        topPipe.style.height = pipe.topHeight + 'px';
+        topPipe.innerHTML = '<div class="pipe-body"></div>';
+        pipesContainer.appendChild(topPipe);
+        
+        // Alt boru
+        const bottomPipe = document.createElement('div');
+        bottomPipe.className = 'pipe';
+        bottomPipe.style.left = pipe.x + 'px';
+        bottomPipe.style.top = pipe.bottomY + 'px';
+        bottomPipe.style.height = pipe.bottomHeight + 'px';
+        bottomPipe.innerHTML = '<div class="pipe-body"></div>';
+        pipesContainer.appendChild(bottomPipe);
+    });
+}
+
+// Çarpışma kontrolü
+function checkCollisions() {
+    // Zemin ve tavan kontrolü
+    if (birdY <= 0 || birdY >= GAME_HEIGHT - 30) {
+        gameOverFunction();
+        return;
+    }
+    
+    // Boru çarpışma kontrolü
+    pipes.forEach(pipe => {
+        if (birdX + 30 > pipe.x && birdX < pipe.x + PIPE_WIDTH) {
+            if (birdY < pipe.topHeight || birdY + 30 > pipe.bottomY) {
+                gameOverFunction();
+                return;
+            }
+        }
+    });
+}
+
+// Zıplama
+function jump() {
+    if (!gameStarted) {
+        startGame();
+    } else if (!gameOver) {
+        birdVelocity = JUMP_FORCE;
+    } else {
+        restartGame();
+    }
+}
+
+// Oyunu yeniden başlat
+function restartGame() {
+    gameStarted = false;
+    gameOver = false;
+    birdY = 200;
+    birdVelocity = 0;
+    birdRotation = 0;
+    pipes = [];
+    pipeSpawnTimer = 0;
+    frameCount = 0;
+    score = 0;
+    
+    clearInterval(gameTimer);
+    
+    startScreen.style.display = 'block';
+    gameOverScreen.style.display = 'none';
+    scoreElement.textContent = '0';
+    
+    bird.style.left = birdX + 'px';
+    bird.style.top = birdY + 'px';
+    bird.style.transform = `rotate(${birdRotation}deg)`;
+    
+    pipesContainer.innerHTML = '';
+}
+
+// Oyun bitti
+function gameOverFunction() {
+    gameOver = true;
+    gameStarted = false;
+    
+    if (score > highScore) {
+        highScore = score;
+        highScoreElement.textContent = highScore;
+    }
+    
+    clearInterval(gameTimer);
+    
+    finalScoreElement.textContent = score;
+    gameOverScreen.style.display = 'block';
+}
+
+// Klavye kontrolü
+document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        jump();
+    }
+});
+
+// Oyun alanına odaklanma
+gameArea.addEventListener('click', function() {
+    gameArea.focus();
+});
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', function() {
+    gameArea.focus();
+});
+</script>
