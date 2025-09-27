@@ -1,0 +1,14 @@
+<svg width="34" height="24" viewBox="0 0 34 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Kuş gövdesi -->
+  <ellipse cx="17" cy="12" rx="15" ry="10" fill="#ffd700" stroke="#000" stroke-width="2"/>
+  
+  <!-- Kuş kanadı -->
+  <ellipse cx="8" cy="10" rx="8" ry="6" fill="#ff8c00" stroke="#000" stroke-width="1"/>
+  
+  <!-- Kuş gözü -->
+  <circle cx="22" cy="8" r="4" fill="white" stroke="#000" stroke-width="1"/>
+  <circle cx="24" cy="8" r="2" fill="black"/>
+  
+  <!-- Kuş gagası -->
+  <polygon points="30,10 34,12 30,14" fill="#ff4500"/>
+</svg>

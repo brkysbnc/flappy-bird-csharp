@@ -91,111 +91,25 @@
             height: 24px;
             z-index: 10;
             transition: transform 0.1s ease;
-        }
-
-        .bird-body {
-            position: absolute;
-            width: 34px;
-            height: 24px;
-            background: #ffd700;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            top: 0;
-            left: 0;
-            border: 2px solid #000;
-        }
-
-        .bird-wing {
-            position: absolute;
-            width: 20px;
-            height: 15px;
-            background: #ff8c00;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            top: 3px;
-            left: 2px;
-            transform-origin: right center;
-            animation: wingFlap 0.2s ease-in-out infinite alternate;
-            border: 1px solid #000;
-        }
-
-        .bird-eye {
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            top: 6px;
-            left: 20px;
-            border: 1px solid #000;
-        }
-
-        .bird-eye::after {
-            content: '';
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: black;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-        }
-
-        .bird-beak {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-left: 6px solid #ff4500;
-            border-top: 2px solid transparent;
-            border-bottom: 2px solid transparent;
-            top: 10px;
-            left: 28px;
-        }
-
-        @keyframes wingFlap {
-            0% {
-                transform: rotateY(0deg) rotateZ(-15deg);
-            }
-            100% {
-                transform: rotateY(0deg) rotateZ(15deg);
-            }
+            background-image: url('images/bird.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
         }
 
         .pipe {
             position: absolute;
             width: 52px;
-            background: #228b22;
-            border: 2px solid #000;
-            border-radius: 0;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
-        .pipe-body {
-            width: 100%;
-            height: 100%;
-            background: #228b22;
-            position: relative;
+        .pipe-top {
+            background-image: url('images/pipe-top.svg');
         }
 
-        .pipe-body::before {
-            content: '';
-            position: absolute;
-            top: -8px;
-            left: -2px;
-            right: -2px;
-            height: 16px;
-            background: #228b22;
-            border: 2px solid #000;
-            border-radius: 0;
-        }
-
-        .pipe-body::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: -2px;
-            right: -2px;
-            height: 16px;
-            background: #228b22;
-            border: 2px solid #000;
-            border-radius: 0;
+        .pipe-bottom {
+            background-image: url('images/pipe-bottom.svg');
         }
 
         .start-screen, .game-over-screen {
@@ -317,12 +231,7 @@
         </div>
         
         <div class="game-area" id="gameArea" tabindex="0">
-            <div class="bird" id="bird">
-                <div class="bird-body"></div>
-                <div class="bird-wing"></div>
-                <div class="bird-eye"></div>
-                <div class="bird-beak"></div>
-            </div>
+            <div class="bird" id="bird"></div>
             
             <div id="pipes"></div>
             
@@ -471,20 +380,18 @@
             pipes.forEach(pipe => {
                 // Üst boru
                 const topPipe = document.createElement('div');
-                topPipe.className = 'pipe';
+                topPipe.className = 'pipe pipe-top';
                 topPipe.style.left = pipe.x + 'px';
                 topPipe.style.top = '0px';
                 topPipe.style.height = pipe.topHeight + 'px';
-                topPipe.innerHTML = '<div class="pipe-body"></div>';
                 pipesContainer.appendChild(topPipe);
                 
                 // Alt boru
                 const bottomPipe = document.createElement('div');
-                bottomPipe.className = 'pipe';
+                bottomPipe.className = 'pipe pipe-bottom';
                 bottomPipe.style.left = pipe.x + 'px';
                 bottomPipe.style.top = pipe.bottomY + 'px';
                 bottomPipe.style.height = pipe.bottomHeight + 'px';
-                bottomPipe.innerHTML = '<div class="pipe-body"></div>';
                 pipesContainer.appendChild(bottomPipe);
             });
         }
