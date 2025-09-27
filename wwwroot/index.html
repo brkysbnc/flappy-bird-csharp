@@ -122,8 +122,9 @@
             position: absolute;
             width: 80px;
             background-image: url('images/pipe-green.png');
-            background-size: contain;
+            background-size: 80px 100%;
             background-repeat: no-repeat;
+            background-position: center;
         }
 
         .start-screen {
@@ -409,8 +410,8 @@
             const playAreaHeight = GAME_HEIGHT - GROUND_HEIGHT;
             
             // Gap'in başlayabileceği minimum ve maksimum yükseklik
-            const minGapY = 50;
-            const maxGapY = playAreaHeight - PIPE_GAP - 50;
+            const minGapY = 100;
+            const maxGapY = playAreaHeight - PIPE_GAP - 100;
             
             const gapY = Math.random() * (maxGapY - minGapY) + minGapY;
             
@@ -428,7 +429,7 @@
             pipesContainer.innerHTML = '';
             
             pipes.forEach(pipe => {
-                // Üst boru - tavana kadar uzat
+                // Üst boru - tavana kadar uzat (sabit uzunluk)
                 const topPipe = document.createElement('div');
                 topPipe.className = 'pipe';
                 topPipe.style.left = pipe.x + 'px';
@@ -437,7 +438,7 @@
                 topPipe.style.transform = 'scaleY(-1)';
                 pipesContainer.appendChild(topPipe);
                 
-                // Alt boru - zemine kadar uzat
+                // Alt boru - zemine kadar uzat (sabit uzunluk)
                 const bottomPipe = document.createElement('div');
                 bottomPipe.className = 'pipe';
                 bottomPipe.style.left = pipe.x + 'px';
