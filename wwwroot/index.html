@@ -307,6 +307,7 @@
         const PIPE_SPEED = 1.5;
         const GAME_WIDTH = 400;
         const GAME_HEIGHT = 600;
+        const GROUND_HEIGHT = 112; // Zemin yüksekliği
 
         // Boru listesi
         let pipes = [];
@@ -404,13 +405,19 @@
 
         // Boru spawn etme
         function spawnPipe() {
-            const gapY = Math.random() * (GAME_HEIGHT - PIPE_GAP - 200) + 100;
+            // Oyun alanı yüksekliği (zemin hariç)
+            const playAreaHeight = GAME_HEIGHT - GROUND_HEIGHT;
+            
+            // Gap'in başlayabileceği minimum ve maksimum yükseklik
+            const minGapY = 50;
+            const maxGapY = playAreaHeight - PIPE_GAP - 50;
+            
+            const gapY = Math.random() * (maxGapY - minGapY) + minGapY;
             
             const pipe = {
                 x: GAME_WIDTH,
-                topHeight: gapY,
-                bottomY: gapY + PIPE_GAP,
-                bottomHeight: GAME_HEIGHT - (gapY + PIPE_GAP)
+                gapY: gapY,
+                gapHeight: PIPE_GAP
             };
             
             pipes.push(pipe);
@@ -421,21 +428,21 @@
             pipesContainer.innerHTML = '';
             
             pipes.forEach(pipe => {
-                // Üst boru
+                // Üst boru - tavana kadar uzat
                 const topPipe = document.createElement('div');
                 topPipe.className = 'pipe';
                 topPipe.style.left = pipe.x + 'px';
                 topPipe.style.top = '0px';
-                topPipe.style.height = pipe.topHeight + 'px';
+                topPipe.style.height = pipe.gapY + 'px';
                 topPipe.style.transform = 'scaleY(-1)';
                 pipesContainer.appendChild(topPipe);
                 
-                // Alt boru
+                // Alt boru - zemine kadar uzat
                 const bottomPipe = document.createElement('div');
                 bottomPipe.className = 'pipe';
                 bottomPipe.style.left = pipe.x + 'px';
-                bottomPipe.style.top = pipe.bottomY + 'px';
-                bottomPipe.style.height = pipe.bottomHeight + 'px';
+                bottomPipe.style.top = (pipe.gapY + pipe.gapHeight) + 'px';
+                bottomPipe.style.height = (GAME_HEIGHT - GROUND_HEIGHT - pipe.gapY - pipe.gapHeight) + 'px';
                 pipesContainer.appendChild(bottomPipe);
             });
         }
@@ -443,7 +450,7 @@
         // Çarpışma kontrolü
         function checkCollisions() {
             // Zemin ve tavan kontrolü - zemin ve tavan çizgileri ile
-            if (birdY <= 20 || birdY >= GAME_HEIGHT - 130) {
+            if (birdY <= 20 || birdY >= GAME_HEIGHT - GROUND_HEIGHT - 20) {
                 gameOverFunction();
                 return;
             }
@@ -462,12 +469,12 @@
                 // Yatay çakışma kontrolü
                 if (birdRight > pipeLeft && birdLeft < pipeRight) {
                     // Üst boru ile çarpışma
-                    if (birdTop < pipe.topHeight - 5) {
+                    if (birdTop < pipe.gapY - 5) {
                         gameOverFunction();
                         return;
                     }
                     // Alt boru ile çarpışma
-                    if (birdBottom > pipe.bottomY + 5) {
+                    if (birdBottom > pipe.gapY + pipe.gapHeight + 5) {
                         gameOverFunction();
                         return;
                     }
